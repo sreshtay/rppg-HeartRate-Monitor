@@ -309,8 +309,8 @@ function loop(ts) {
           addHistoryRow(bpm, lastBleBpm);
           pushChartPoint(bpm, lastBleBpm);
         } else {
-          rppgValueEl.textContent = lastRppgBpm ? lastRppgBpm.toFixed(0) : "—";
-          statusEl.textContent = "status: running";
+          rppgValueEl.textContent = "—";
+          statusEl.textContent = "status: searching for pulse…";
           // Push a null rPPG point to keep BLE line continuous on chart
           if (lastBleBpm != null) pushChartPoint(null, lastBleBpm);
         }

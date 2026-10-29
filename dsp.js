@@ -29,6 +29,7 @@ const PRIOR_WEIGHT = 0.25; // was 0.30 — less sticky, tracks changes faster
 const OUTLIER_BPM = 15;   // was 20 — tighter, blocks sub-harmonic drift
 
 const bpmHistory = [];
+let rejectStreak = 0;
 let lastHz = null;
 
 export function estimateBpmFromWindow(x, fs) {
@@ -91,9 +92,14 @@ export function estimateBpmFromWindow(x, fs) {
 
   // Outlier clamp — reject if too far from last accepted reading
   if (lastHz !== null) {
-    const priorBpm = lastHz * 60;
-    if (Math.abs(rawBpm - priorBpm) > OUTLIER_BPM) return null;
+  const priorBpm = lastHz * 60;
+  if (Math.abs(rawBpm - priorBpm) > OUTLIER_BPM) {
+    rejectStreak++;
+    if (rejectStreak >= 3) resetDsp();
+    return null;
   }
+}
+rejectStreak = 0;
 
   lastHz = freqHz;
   bpmHistory.push(rawBpm);
@@ -105,6 +111,7 @@ export function estimateBpmFromWindow(x, fs) {
 export function resetDsp() {
   bpmHistory.length = 0;
   lastHz = null;
+  rejectStreak = 0;
 }
 
 function biquadLowpass(x, fs, fc) {
